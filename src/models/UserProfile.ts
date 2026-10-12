@@ -90,7 +90,6 @@
 //   mongoose.models.UserProfile ||
 //   mongoose.model<IUserProfile>("UserProfile", UserProfileSchema);
 
-
 import mongoose, {
   Schema,
   Document,
@@ -131,8 +130,9 @@ export interface IUserProfile extends Document {
 
   skills: string[];
 
-  education: any[];
-  projects: any[];
+  // Stored as flexible MongoDB data
+  education: unknown;
+  projects: unknown;
 
   summary: string;
 
@@ -230,6 +230,10 @@ const UserPreferencesSchema =
 const UserProfileSchema =
   new Schema<IUserProfile>(
     {
+      // =====================================================
+      // BASIC USER INFO
+      // =====================================================
+
       userId: {
         type: String,
         required: true,
@@ -256,6 +260,10 @@ const UserProfileSchema =
         trim: true,
       },
 
+      // =====================================================
+      // PROFESSIONAL INFO
+      // =====================================================
+
       location: {
         type: String,
         default: "",
@@ -279,16 +287,24 @@ const UserProfileSchema =
         default: [],
       },
 
+      // =====================================================
+      // FLEXIBLE PROFILE DATA
+      //
       // IMPORTANT:
-      // Do not use [Schema.Types.Mixed] here.
-      // It causes TS2322 with the current Mongoose typings.
+      // Use Mixed directly instead of:
+      // type: [Schema.Types.Mixed]
+      //
+      // This avoids the TS2322 error with current Mongoose
+      // typings.
+      // =====================================================
+
       education: {
-        type: Array,
+        type: Schema.Types.Mixed,
         default: [],
       },
 
       projects: {
-        type: Array,
+        type: Schema.Types.Mixed,
         default: [],
       },
 
@@ -297,10 +313,18 @@ const UserProfileSchema =
         default: "",
       },
 
+      // =====================================================
+      // JOB PREFERENCES
+      // =====================================================
+
       preferences: {
         type: UserPreferencesSchema,
         default: () => ({}),
       },
+
+      // =====================================================
+      // JOB DISCOVERY
+      // =====================================================
 
       lastJobDiscoveryAt: {
         type: Date,
@@ -322,10 +346,18 @@ const UserProfileSchema =
         default: "",
       },
 
+      // =====================================================
+      // PROFILE VERSION
+      // =====================================================
+
       profileVersion: {
         type: String,
         default: "1.0",
       },
+
+      // =====================================================
+      // ACTIVE STATUS
+      // =====================================================
 
       isActive: {
         type: Boolean,
@@ -340,6 +372,10 @@ const UserProfileSchema =
 
 // =========================================================
 // MODEL
+// =========================================================
+//
+// Prevent "Cannot overwrite model once compiled" during
+// Next.js development/hot reload and serverless execution.
 // =========================================================
 
 export const UserProfile =
