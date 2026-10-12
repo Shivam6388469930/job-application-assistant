@@ -91,7 +91,7 @@
 //   mongoose.model<IUserProfile>("UserProfile", UserProfileSchema);
 
 
-  import mongoose, {
+import mongoose, {
   Schema,
   Document,
   Model,
@@ -271,6 +271,7 @@ const UserProfileSchema =
       experience: {
         type: String,
         default: "",
+        trim: true,
       },
 
       skills: {
@@ -278,13 +279,16 @@ const UserProfileSchema =
         default: [],
       },
 
+      // IMPORTANT:
+      // Do not use [Schema.Types.Mixed] here.
+      // It causes TS2322 with the current Mongoose typings.
       education: {
-        type: [Schema.Types.Mixed],
+        type: Array,
         default: [],
       },
 
       projects: {
-        type: [Schema.Types.Mixed],
+        type: Array,
         default: [],
       },
 
